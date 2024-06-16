@@ -348,4 +348,13 @@ class User{
     };
     return await Post_db(jsonEncode(json));
   }
+
+    Future<Response> withdrawMoney(double amount) async{
+        Map<String, dynamic> json = {
+        'type': 'withdrawMoney',
+        'AccountID': id,
+        'Amount': amount
+        };
+        return await Post_db(jsonEncode(json));
+    }
 }
