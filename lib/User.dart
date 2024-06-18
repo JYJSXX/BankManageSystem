@@ -9,9 +9,10 @@ class Loan{
   final double InterestRate;
   final String LoanDate;//借款日期
   final String RequestDate;//还款日期
+  final int AccountID;
   final String EmployeeName;
   int Status;
-  Loan(this.LoanID, this.Amount, this.InterestRate, this.LoanDate, this.RequestDate, { this.Status = -1, this.EmployeeName = ''});
+  Loan(this.LoanID, this.Amount, this.InterestRate, this.LoanDate, this.RequestDate, this.AccountID, { this.Status = -1, this.EmployeeName = ''});
 }
 
 class Bank{
@@ -163,12 +164,15 @@ class User{
     return Post_db(jsonEncode(json)).then((value) => jsonDecode(value.body)['EmployeeName'][0]);
   }
 
-  Future<List<Loan>> getLoanList() async{
+  Future<List<Loan>> getLoanList({Map<String, dynamic>? search}) async{
     Map<String, dynamic> json = {
       'type': 'getLoanList',
       'AccountID': id,
       'isCustomer': isCustomer
     };
+    if(search != null){
+      json.addAll(search);
+    }
     var res = await Post_db(jsonEncode(json));
     loanList.clear();
     if (jsonDecode(res.body)['success'] == true){
@@ -182,6 +186,7 @@ class User{
         loanList.add(Loan(response['LoanID'][i], response['Amount'][i], response['InterestRate'][i], 
                           DateTime.fromMillisecondsSinceEpoch(response['LoanDate'][i]).toString(),
                           DateTime.fromMillisecondsSinceEpoch(response['RequestDate'][i]).toString(),
+                          response['AccountID'][i],
                           Status:  response['Status'][i], EmployeeName: eName
                           ));
       }
@@ -316,7 +321,7 @@ class User{
     if(response['success'] == true){
       for(int i = 0; i < response['count']; i++){
         if(response['EmployeeID'][i] == 1) continue;
-        var temp = User(name: '', password: '', id: response['EmployeeID'][i], isCustomer:false);
+        var temp = User(name: '${response['EmployeeName'][0]}', password: '', id: response['EmployeeID'][i], isCustomer:false);
         await temp.getUserDetail();
         employeeList.add(temp);
       }
@@ -368,5 +373,15 @@ class User{
       'DepartmentName': departmentname
     };
     return Post_db(jsonEncode(json));
+  }
+
+  Future<String> getAccoutName(int AccountID)async{
+    Map<String, dynamic> json = {
+      'type': 'getAccountName',
+      'AccountID': AccountID
+    };
+    var res = await Post_db(jsonEncode(json));
+    print(res.body);
+    return jsonDecode(res.body)['AccountName'];
   }
 }

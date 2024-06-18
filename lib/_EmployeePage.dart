@@ -52,7 +52,6 @@ class _EmployeePageState extends State<EmployeePage>{
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 5),
-                      Text('${employee.name}:'),
                       Text('邮件: ${employee.mail}'),
                       Text('电话: ${employee.tel}'),
                       Text('部门: ${employee.departmentName}'),
@@ -91,9 +90,9 @@ class _EmployeePageState extends State<EmployeePage>{
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => ESignUpPage())
-                  ).then((value){
+                  ).then((value)async{
+                    await user.getEmployeeList();
                     setState(() {
-                      user.getEmployeeList();
                     });
                   });
                 },
