@@ -72,8 +72,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState(){
     super.initState();
-    user = User(name: 'test', password: 'test');
-    user.login();
+    user = User(name: 'root', password: 'root');
+    user.login().then((value){
+      user.getUserDetail();
+      setState(() {
+      });
+    });
   }
 
   List<Widget> _buildVistorSight(Size size){

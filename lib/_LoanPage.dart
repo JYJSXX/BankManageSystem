@@ -127,7 +127,7 @@ Widget _buildLoanActions(BuildContext context, Loan loan) {
             if (response['success'] == true) {
               setState(() {
                 _loanList = user.getLoanList();
-                
+                user.getUserDetail();
               });
             }
             else{

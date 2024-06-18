@@ -1,7 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:lab2/_ESignUpPage.dart';
+import 'to_server.dart';
 import 'User.dart';
 import 'main.dart';
 
@@ -11,7 +15,14 @@ class BankPage extends StatefulWidget {
 }
 
 class _BankPageState extends State<BankPage>{
-  final Future<List<Bank>> bankList = user.getBankList();
+  Future<List<Bank>> bankList = user.getBankList();
+  int bankID = 0;
+
+  @override
+  void initState(){
+    super.initState();
+    bankID = 0;
+  }
 
   Widget _buildbankList(){
     return FutureBuilder<List<Bank>>(
@@ -30,33 +41,40 @@ class _BankPageState extends State<BankPage>{
             itemCount: banks.length,
             itemBuilder: (context, index) {
               final Bank bank = banks[index];
-              return Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 5,
-                margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 5.0),
-                child: ListTile(
-                  contentPadding: EdgeInsets.all(10.0),
-                  leading: const CircleAvatar(
-                    radius: 30,
-                    backgroundImage: NetworkImage("https://www.bing.com/images/search?view=detailV2&ccid=wDBVKFJx&id=E74EB7384AB1233BF829975A5913A00A085BC1A8&thid=OIP.wDBVKFJxPRuzmSBduP5w9QAAAA&mediaurl=https%3a%2f%2fp1.ssl.qhimg.com%2fdr%2f220__%2ft01d3d78424a31e4333.png&exph=61&expw=188&q=%e9%93%b6%e8%a1%8c&simid=607991018552524703&FORM=IRPRST&ck=CE49B415FA1670260A0BCD6C8B751CF3&selectedIndex=1&itb=0&qft=+filterui%3aimagesize-small")
+              return GestureDetector(
+                onTap: ()async{
+                  bankID = bank.BankID;
+                  setState(() {
+                  });
+                },
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  title: Text(
-                    bank.BankName,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  elevation: 5,
+                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 5.0),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    leading: const CircleAvatar(
+                      radius: 30,
+                      backgroundImage: AssetImage('assets/bank2.png'),
+                    ),
+                    title: Text(
+                      bank.BankName,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 5),
+                        Text('${bank.BankName}:'),
+                        Text('邮件: ${bank.BankMail}'),
+                        Text('电话: ${bank.BankTel}'),
+                        Text('地址: ${bank.BankAddress}'),
+                      ],
+                    ),
+                    isThreeLine: true,
                   ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 5),
-                      Text('${bank.BankName}:'),
-                      Text('邮件: ${bank.BankMail}'),
-                      Text('电话: ${bank.BankTel}'),
-                      Text('地址: ${bank.BankAddress}'),
-                    ],
-                  ),
-                  isThreeLine: true,
                 ),
               );
             },
@@ -72,8 +90,126 @@ class _BankPageState extends State<BankPage>{
     );
   }
 
+  Widget _buildDepartmentList(int bankID){
+    TextEditingController _departmentController = TextEditingController();
+    return FutureBuilder<List<String>>(
+      future: getDepartmentList(bankID),
+      builder: (context, snapshot) {
+        if(snapshot.connectionState == ConnectionState.waiting){
+          return Center(child: CircularProgressIndicator());
+        } else if(user.id == -1){
+          return Center(child: Text('请先登录'));
+        } else if(snapshot.hasError){
+          return Center(child: Text('获取部门列表失败'));
+        } else if(snapshot.hasData){
+          final List<String> departments = snapshot.data!;
+          return ListView.separated(
+            padding: EdgeInsets.all(8.0),
+            itemCount: departments.length,
+            itemBuilder: (context, index) {
+              final String department = departments[index];
+              return GestureDetector(
+                onTap: ()async{
+                  changeDepartmentname(context, _departmentController, department).then((value){setState(() {
+                    user.getBankList();
+                  });});
+
+                },
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 5,
+                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 5.0),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.all(10.0),
+                    title: Text(
+                      ((index+1).toString()),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 5),
+                        Text('${department}'),
+                      ],
+                    ),
+                    isThreeLine: true,
+                  ),
+                ),
+              );
+            },
+            separatorBuilder: (context, index) => Divider(
+              thickness: 1,
+              color: Colors.grey[300],
+            ),
+          );
+        } else {
+          return Center(child: Text('未知错误'));
+        }
+      },
+    );
+  }
+
+  Future<dynamic> changeDepartmentname(BuildContext context, TextEditingController _departmentController, String department) {
+    return showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('修改部门名称'),
+                      content: TextField(
+                        controller: _departmentController,
+                        decoration: const InputDecoration(
+                          labelText: '部门名称',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('取消'),
+                        ),
+                        TextButton(
+                          onPressed: () async{
+                            int id = await getDepartmentID(department);
+                            var res = await user.modifyDepartment(id, _departmentController.text);
+                            print(res.body);
+                            if(jsonDecode(res.body)['success'] == false){
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('出错：\n${jsonDecode(res.body)['msg'].toString()}'),
+                                    content: Text(jsonDecode(res.body)['msg']),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('确定'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                            else{
+                              Navigator.of(context).pop();
+                            }
+                          },
+                          child: Text('确定'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+  }
+
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: Container(
@@ -102,7 +238,13 @@ class _BankPageState extends State<BankPage>{
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: _buildbankList(),
+        child: Row(
+          children: [
+            Container(height: size.height, width: size.width/3, child: _buildbankList()),
+            SizedBox(width: 16),
+            Container(height: size.height, width: size.width/3, child: _buildDepartmentList(bankID)),
+          ],
+        ),
       ),
     );
   }
