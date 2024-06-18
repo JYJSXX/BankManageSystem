@@ -76,6 +76,7 @@ class _ESignUpPageState extends State<ESignUpPage> {
             if(jsonDecode(response.body)['success']){
               await newuser.login();
               await newuser.getUserDetail();
+              // await user.getEmployeeList();
               Navigator.pop(context);
             }
             else{
@@ -149,7 +150,7 @@ class _ESignUpPageState extends State<ESignUpPage> {
     var size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('注册账户'),
+        title: const Text('注册员工'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

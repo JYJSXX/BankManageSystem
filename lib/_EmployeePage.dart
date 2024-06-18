@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:lab2/_ESignUpPage.dart';
 import 'User.dart';
@@ -10,20 +9,27 @@ class EmployeePage extends StatefulWidget {
   _EmployeePageState createState() => _EmployeePageState();
 }
 
-class _EmployeePageState extends State<EmployeePage>{
-  final Future<List<User>> employeeList = user.getEmployeeList();
+class _EmployeePageState extends State<EmployeePage> {
+  Future<List<User>> employeeList = user.getEmployeeList();
 
-  Widget _buildEmployeeList(){
+  Future<void> _deleteEmployee(int employeeID) async {
+    await user.delEmployee(employeeID);
+    setState(() {
+      employeeList = user.getEmployeeList();
+    });
+  }
+
+  Widget _buildEmployeeList() {
     return FutureBuilder<List<User>>(
       future: employeeList,
-      builder: (context, snapshot){
-        if(snapshot.connectionState == ConnectionState.waiting){
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
-        } else if(user.id == -1){
+        } else if (user.id == -1) {
           return Center(child: Text('请先登录'));
-        } else if(snapshot.hasError){
+        } else if (snapshot.hasError) {
           return Center(child: Text('获取员工列表失败'));
-        } else if(snapshot.hasData){
+        } else if (snapshot.hasData) {
           final List<User> employees = snapshot.data!;
           return ListView.separated(
             padding: EdgeInsets.all(8.0),
@@ -59,6 +65,10 @@ class _EmployeePageState extends State<EmployeePage>{
                     ],
                   ),
                   isThreeLine: true,
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _deleteEmployee(employee.id),
+                  ),
                 ),
               );
             },
@@ -86,13 +96,13 @@ class _EmployeePageState extends State<EmployeePage>{
               Text("员工列表"),
               SizedBox(width: 20),
               ElevatedButton(
-                onPressed: (){
+                onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => ESignUpPage())
-                  ).then((value)async{
-                    await user.getEmployeeList();
+                  ).then((value) {
                     setState(() {
+                      employeeList = user.getEmployeeList();
                     });
                   });
                 },
@@ -100,7 +110,7 @@ class _EmployeePageState extends State<EmployeePage>{
               )
             ],
           ),
-        )
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

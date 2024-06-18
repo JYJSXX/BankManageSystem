@@ -321,7 +321,7 @@ class User{
     if(response['success'] == true){
       for(int i = 0; i < response['count']; i++){
         if(response['EmployeeID'][i] == 1) continue;
-        var temp = User(name: '${response['EmployeeName'][0]}', password: '', id: response['EmployeeID'][i], isCustomer:false);
+        var temp = User(name: '${response['EmployeeName'][i]}', password: '', id: response['EmployeeID'][i], isCustomer:false);
         await temp.getUserDetail();
         employeeList.add(temp);
       }
@@ -383,5 +383,14 @@ class User{
     var res = await Post_db(jsonEncode(json));
     print(res.body);
     return jsonDecode(res.body)['AccountName'];
+  }
+
+  Future<void> delEmployee(int EmployeeID){
+    if(isCustomer || user.id!=1) throw Exception('You have no authority');
+    Map<String, dynamic> json = {
+      'type': 'delEmployee',
+      'EmployeeID': EmployeeID
+    };
+    return Post_db(jsonEncode(json));
   }
 }

@@ -57,7 +57,7 @@ class _BankPageState extends State<BankPage>{
                     contentPadding: EdgeInsets.all(10.0),
                     leading: const CircleAvatar(
                       radius: 30,
-                      backgroundImage: AssetImage('assets/bank2.png'),
+                      backgroundImage: AssetImage('images/bank2.png'),
                     ),
                     title: Text(
                       bank.BankName,
