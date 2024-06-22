@@ -218,20 +218,20 @@ class _BankPageState extends State<BankPage>{
             children: [
               SizedBox(width: 40),
               Text("银行列表"),
-              SizedBox(width: 20),
-              ElevatedButton(
-                onPressed: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ESignUpPage())
-                  ).then((value){
-                    setState(() {
-                      user.getBankList();
-                    });
-                  });
-                },
-                child: Text("添加银行"),
-              )
+              // SizedBox(width: 20),
+              // ElevatedButton(
+              //   onPressed: (){
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(builder: (context) => ESignUpPage())
+              //     ).then((value){
+              //       setState(() {
+              //         user.getBankList();
+              //       });
+              //     });
+              //   },
+              //   child: Text("添加银行"),
+              // )
             ],
           ),
         )
