@@ -355,7 +355,6 @@ class User{
   }
 
   Future<Response> withdrawMoney(double amount) async{
-    if(isCustomer) throw Exception('You are not an employee');
 
       Map<String, dynamic> json = {
       'type': 'withdrawMoney',
@@ -392,5 +391,25 @@ class User{
       'EmployeeID': EmployeeID
     };
     return Post_db(jsonEncode(json));
+  }
+
+  Future<List<User>> getCustomerList() async{
+    if(isCustomer || user.id != 1) throw Exception('You have no authority');
+    Map<String, dynamic> json = {
+      'type': 'getCustomerList'
+    };
+    var value = await Post_db(jsonEncode(json));
+      var response = jsonDecode(value.body);
+      List<User> customerList = [];
+      if(response['success'] == true){
+        print(response);
+        for(int i = 0; i < response['count']; i++){
+          var temp = User(name: '${response['AccountName'][i]}', password: '', id: response['AccountID'][i]);
+          await temp.getUserDetail();
+          customerList.add(temp);
+        }
+      }
+      return customerList;
+    
   }
 }

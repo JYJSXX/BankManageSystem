@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/widgets.dart';
+
 import 'User.dart';
 import 'package:flutter/material.dart';
 import 'package:lab2/doc.dart';
@@ -13,6 +15,7 @@ import '_SignUpPage.dart';
 import '_UserDetailPage.dart';
 import '_LoanPage.dart';
 import '_EmployeePage.dart';
+import '_AccountPage.dart';
 User user =User(name: '', password: '');
 void main() {
   runApp(const MyApp());
@@ -27,21 +30,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: '银行管理系统',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
@@ -72,12 +60,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState(){
     super.initState();
-    user = User(name: 'root', password: 'root');
-    user.login().then((value){
-      user.getUserDetail();
-      setState(() {
-      });
-    });
+    // user = User(name: 'root', password: 'root');//测试用
+    // user.login().then((value){
+    //   user.getUserDetail();
+    //   setState(() {
+    //   });
+    // });
   }
 
   List<Widget> _buildVistorSight(Size size){
@@ -198,12 +186,28 @@ class _MyHomePageState extends State<MyHomePage> {
             child: const Text('员工管理'),
           ),
         ),
+
       if(!user.isCustomer)
-        SizedBox(width: 50,),
+        Container(
+          height: 50,
+          width: size.width/12,
+          alignment: Alignment.topRight,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: page == 6 ? Colors.blue : Colors.grey,
+            ),
+            onPressed: (){
+              setState(() {
+                page = 6;
+              });
+            },
+            child: const Text('用户管理'),
+          ),
+        ),
       Container(
         height: 50,
         width: size.width/12,
-        alignment: Alignment.topLeft,
+        alignment: Alignment.topRight,
         child: ElevatedButton(
           onPressed: (){
             setState(() {
@@ -213,7 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
           style: ElevatedButton.styleFrom(
             backgroundColor: page == 1 ? Colors.blue : Colors.grey,
           ),
-          child:  Text('贷款管理'),
+          child: user.isCustomer ? Text('贷款') : Text('贷款管理'),
         ),
       ),
       Container(
@@ -264,6 +268,21 @@ class _MyHomePageState extends State<MyHomePage> {
       width: size.width*2/3,
       alignment: Alignment.center,
       child: EmployeePage(),
+    );
+  }
+
+  Widget _buildAccountPage(Size size){
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.black, width: 1),
+          borderRadius: BorderRadius.circular(0),
+
+          color: Colors.redAccent.withOpacity(0.5),
+        ),
+      height: size.height*3/4,
+      width: size.width*2/3,
+      alignment: Alignment.center,
+      child: CustomerPage(),
     );
   }
 
@@ -446,6 +465,7 @@ class _MyHomePageState extends State<MyHomePage> {
             if(page == 3) _buildBankPage(size),
             if(page == 4) _buildSavePage(size),
             if(page == 5) _buildWithdrawPage(size),
+            if(page == 6) _buildAccountPage(size),
           ],
         ),
       ),

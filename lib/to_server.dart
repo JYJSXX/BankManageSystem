@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart';
-import 'package:lab2/exception.dart';
-import 'package:lab2/_LoanPage.dart';
 final url = Uri(host: "127.0.0.1", port: 8080, path: "/test");
 
 Future<Response> Post_db(String json) async {
-  final url = Uri(host: "127.0.0.1", port: 8080, path: "/test");
   Response? response;
   try{
     response = await post(url, body: json);
